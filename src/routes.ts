@@ -3,6 +3,7 @@ import Home from "./views/Home.vue";
 import Login from "./views/LoginRegister.vue";
 import Dashboard from "./views/Dashboard.vue";
 import ApiRequest from "./views/ApiRequest.vue"; // Add import for the new component
+import Account from "./views/Account.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -19,6 +20,12 @@ const routes: Array<RouteRecordRaw> = [
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/account",
+    name: "Account",
+    component: Account,
     meta: { requiresAuth: true },
   },
   {

@@ -126,7 +126,9 @@ async function handleLogin() {
             if (result.user) {
                 localStorage.setItem('user', JSON.stringify(result.user));
             }
+            // Redirect to home page and force a reload to refresh the topbar
             router.push('/');
+            window.location.reload();
         } else {
             loginError.value = 'Identifiants invalides';
         }

@@ -12,6 +12,8 @@
                     <li><router-link to="/" @click="menuOpen = false">Home</router-link></li>
                     <li v-if="!isAuthenticated"><router-link to="/login" @click="menuOpen = false">Login /
                             Register</router-link></li>
+                    <li v-if="isAuthenticated"><router-link to="/account" @click="menuOpen = false">Mon
+                            Compte</router-link></li>
                     <li v-if="isAuthenticated"><router-link to="/dashboard"
                             @click="menuOpen = false">Dashboard</router-link></li>
                     <li v-if="isAuthenticated"><router-link to="/api-request" @click="menuOpen = false">API
@@ -519,7 +521,7 @@ th:first-child {
 }
 
 th:last-child {
-    border-top-right-radius: var(--radius);
+    border-top-right-radius: var (--radius);
 }
 
 td {
