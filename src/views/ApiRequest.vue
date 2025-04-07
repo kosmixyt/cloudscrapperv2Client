@@ -1,90 +1,126 @@
 <template>
-    <div class="api-request-page">
-        <h1>API Request</h1>
+    <div class="api-container">
+        <h1 class="page-title">API Request</h1>
 
         <div class="panels-container">
             <!-- Left Panel - Request Form -->
-            <div class="panel request-panel">
-                <h2>Paramètres de la requête</h2>
+            <div class="panel panel-request">
+                <h2 class="section-title">Paramètres de la requête</h2>
 
                 <div class="form-group">
-                    <label for="cmd">Commande:</label>
-                    <select id="cmd" v-model="requestPayload.cmd">
+                    <label for="cmd" class="form-label">Commande:</label>
+                    <select id="cmd" v-model="requestPayload.cmd" class="input-select">
                         <option value="request.get">request.get</option>
                         <option value="request.post">request.post</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="url">URL:</label>
-                    <input id="url" v-model="requestPayload.url" placeholder="https://example.com" />
+                    <label for="url" class="form-label">URL:</label>
+                    <input id="url" v-model="requestPayload.url" placeholder="https://example.com" class="input-field" />
                 </div>
 
                 <div class="form-group">
-                    <label for="session">ID de Session (optionnel):</label>
-                    <input id="session" v-model="requestPayload.session" placeholder="ID de session" />
+                    <label for="session" class="form-label">ID de Session (optionnel):</label>
+                    <input id="session" v-model="requestPayload.session" placeholder="ID de session" class="input-field" />
                 </div>
 
                 <div class="form-group">
-                    <label for="session_ttl">Durée de session (minutes):</label>
-                    <input type="number" id="session_ttl" v-model="requestPayload.session_ttl_minutes" min="1" />
+                    <label for="session_ttl" class="form-label">Durée de session (minutes):</label>
+                    <input type="number" id="session_ttl" v-model="requestPayload.session_ttl_minutes" min="1" class="input-field" />
                 </div>
 
                 <div class="form-group">
-                    <label for="timeout">Timeout (secondes):</label>
-                    <input type="number" id="timeout" v-model="requestPayload.maxTimeout" min="1" />
+                    <label for="timeout" class="form-label">Timeout (secondes):</label>
+                    <input type="number" id="timeout" v-model="requestPayload.maxTimeout" min="1" class="input-field" />
                 </div>
 
                 <div class="form-group">
-                    <label for="proxy">Proxy (optionnel):</label>
-                    <input id="proxy" v-model="requestPayload.proxy" placeholder="http://username:password@ip:port" />
+                    <label for="proxy" class="form-label">Proxy (optionnel):</label>
+                    <input id="proxy" v-model="requestPayload.proxy" placeholder="http://username:password@ip:port" class="input-field" />
                 </div>
 
-                <div class="form-group checkbox">
-                    <input type="checkbox" id="returnCookies" v-model="returnOnlyCookies">
-                    <label for="returnCookies">Retourner uniquement les cookies</label>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="returnCookies" v-model="returnOnlyCookies" class="checkbox-input">
+                    <label for="returnCookies" class="checkbox-label">Retourner uniquement les cookies</label>
                 </div>
 
                 <div class="form-group">
-                    <label>Cookies personnalisés:</label>
+                    <label class="form-label">Cookies personnalisés:</label>
                     <div class="cookies-container">
-                        <div v-for="(cookie, index) in cookies" :key="index" class="cookie-item">
-                            <input v-model="cookie.name" placeholder="Nom" />
-                            <input v-model="cookie.value" placeholder="Valeur" />
-                            <button @click="removeCookie(index)" class="delete-btn">×</button>
+                        <div v-for="(cookie, index) in cookies" :key="index" class="cookie-entry">
+                            <input v-model="cookie.name" placeholder="Nom" class="cookie-input" />
+                            <input v-model="cookie.value" placeholder="Valeur" class="cookie-input" />
+                            <button @click="removeCookie(index)" class="remove-button">×</button>
                         </div>
-                        <button @click="addCookie" class="add-btn">+ Ajouter un cookie</button>
+                        <button @click="addCookie" class="add-button-small">+ Ajouter un cookie</button>
+                    </div>
+                </div>
+
+                <!-- Browser Actions Section -->
+                <div class="form-group">
+                    <label class="form-label">Actions du navigateur:</label>
+                    <div class="actions-container">
+                        <div v-for="(action, index) in browserActions" :key="index" class="action-entry">
+                            <div class="action-header">
+                                <select v-model="action.action" class="action-select">
+                                    <option value="reload">Recharger la page</option>
+                                    <option value="wait">Attendre (secondes)</option>
+                                    <option value="script">Exécuter un script</option>
+                                    <option value="type">Saisir du texte</option>
+                                    <option value="waitForSelector">Attendre un élément</option>
+                                </select>
+                                <button @click="removeBrowserAction(index)" class="remove-button">×</button>
+                            </div>
+                            <div class="action-content">
+                                <div v-if="['wait', 'script', 'type'].includes(action.action)" class="action-input-group">
+                                    <label v-if="action.action === 'wait'" class="action-label">Durée (secondes):</label>
+                                    <label v-else-if="action.action === 'script'" class="action-label">Code JavaScript:</label>
+                                    <label v-else-if="action.action === 'type'" class="action-label">Texte à saisir:</label>
+                                    
+                                    <input v-if="action.action === 'wait'" type="number" v-model="action.value" min="1" max="60" class="action-input" />
+                                    <textarea v-else-if="action.action === 'script'" v-model="action.value" rows="4" class="action-textarea"></textarea>
+                                    <input v-else-if="action.action === 'type'" type="text" v-model="action.value" placeholder="Texte à saisir" class="action-input" />
+                                </div>
+                                
+                                <div v-if="['type', 'waitForSelector'].includes(action.action)" class="action-input-group">
+                                    <label class="action-label">Sélecteur CSS:</label>
+                                    <input type="text" v-model="action.selector" placeholder="Ex: #login-form input[name=username]" class="action-input" />
+                                </div>
+                            </div>
+                        </div>
+                        <button @click="addBrowserAction" class="add-button-small">+ Ajouter une action</button>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <h3>Payload JSON</h3>
-                    <div class="json-editor-container">
-                        <textarea class="json-editor" v-model="jsonPayload" rows="10"></textarea>
+                    <h3 class="subsection-title">Payload JSON</h3>
+                    <div class="json-container">
+                        <textarea class="json-textarea" v-model="jsonPayload" rows="10"></textarea>
                     </div>
                 </div>
 
-                <div class="button-container">
-                    <button @click="sendRequest" :disabled="isLoading" class="send-btn">
+                <div class="form-actions">
+                    <button @click="sendRequest" :disabled="isLoading" class="submit-button">
                         {{ isLoading ? 'Envoi en cours...' : 'Envoyer la requête' }}
                     </button>
                 </div>
             </div>
 
             <!-- Right Panel - Response -->
-            <div class="panel response-panel">
-                <h2>Réponse</h2>
+            <div class="panel panel-response">
+                <h2 class="section-title">Réponse</h2>
                 <div v-if="isLoading" class="loading-container">
                     <div class="loading-spinner"></div>
-                    <p>Chargement en cours...</p>
+                    <p class="loading-text">Chargement en cours...</p>
                 </div>
-                <div v-else-if="response" class="response-content">
+                <div v-else-if="response" class="response-container">
                     <div class="response-status">
                         <span>Status: {{ responseStatus }}</span>
                     </div>
-                    <pre class="json-response">{{ formattedResponse }}</pre>
+                    <pre class="response-content">{{ formattedResponse }}</pre>
                 </div>
-                <div v-else class="no-response-message">
+                <div v-else class="empty-response">
                     <p>La réponse apparaîtra ici après l'envoi d'une requête.</p>
                 </div>
             </div>
@@ -93,7 +129,7 @@
 </template>
 
 <script>
-import { DoRequest } from '@/api';
+import { DoRequest } from '../api';
 import { defineComponent, ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -114,6 +150,8 @@ export default defineComponent({
 
         const cookies = ref([]);
         const returnOnlyCookies = ref(false);
+        // Add browserActions ref for the new feature
+        const browserActions = ref([]);
 
         // Watch returnOnlyCookies and update the payload
         watch(returnOnlyCookies, (newVal) => {
@@ -133,7 +171,29 @@ export default defineComponent({
             }
         }, { deep: true });
 
-
+        // Watch browserActions array and update the payload
+        watch(browserActions, (newVal) => {
+            if (newVal.length > 0) {
+                // Filter out empty values to prevent API errors
+                const validActions = newVal.map(action => {
+                    const cleanedAction = { action: action.action };
+                    
+                    if (['wait', 'script', 'type'].includes(action.action) && action.value) {
+                        cleanedAction.value = action.value;
+                    }
+                    
+                    if (['type', 'waitForSelector'].includes(action.action) && action.selector) {
+                        cleanedAction.selector = action.selector;
+                    }
+                    
+                    return cleanedAction;
+                });
+                
+                requestPayload.value.actions = validActions;
+            } else {
+                delete requestPayload.value.actions;
+            }
+        }, { deep: true });
 
         // JSON representation of the payload
         const jsonPayload = computed({
@@ -153,6 +213,17 @@ export default defineComponent({
                     }
 
                     returnOnlyCookies.value = parsed.returnOnlyCookies === "true";
+                    
+                    // Update browserActions from the parsed payload
+                    if (parsed.actions && Array.isArray(parsed.actions)) {
+                        browserActions.value = parsed.actions.map(action => ({
+                            action: action.action,
+                            value: action.value || '',
+                            selector: action.selector || ''
+                        }));
+                    } else {
+                        browserActions.value = [];
+                    }
                 } catch (e) {
                     console.error("Invalid JSON:", e);
                     // Do not update if JSON is invalid
@@ -185,6 +256,17 @@ export default defineComponent({
             }
 
             returnOnlyCookies.value = payload.returnOnlyCookies === "true";
+            
+            // Update browserActions
+            if (payload.actions && Array.isArray(payload.actions)) {
+                browserActions.value = payload.actions.map(action => ({
+                    action: action.action,
+                    value: action.value || '',
+                    selector: action.selector || ''
+                }));
+            } else {
+                browserActions.value = [];
+            }
         };
 
         // Add a cookie to the list
@@ -195,6 +277,20 @@ export default defineComponent({
         // Remove a cookie from the list
         const removeCookie = (index) => {
             cookies.value.splice(index, 1);
+        };
+        
+        // Add a browser action to the list
+        const addBrowserAction = () => {
+            browserActions.value.push({
+                action: "wait",
+                value: "5",
+                selector: ""
+            });
+        };
+        
+        // Remove a browser action from the list
+        const removeBrowserAction = (index) => {
+            browserActions.value.splice(index, 1);
         };
 
         // Send the API request
@@ -228,6 +324,7 @@ export default defineComponent({
             requestPayload,
             cookies,
             returnOnlyCookies,
+            browserActions,
             jsonPayload,
             isLoading,
             response,
@@ -236,294 +333,483 @@ export default defineComponent({
             loadExample,
             addCookie,
             removeCookie,
+            addBrowserAction,
+            removeBrowserAction,
             sendRequest
         };
     }
 });
 </script>
 
-<style scoped>
-.api-request-page {
+<style>
+/* Container styles */
+.api-container {
     max-width: 100%;
     margin: 0 auto;
     text-align: left;
     overflow: hidden;
+    padding: 1rem;
 }
 
-h1,
-h2,
-h3 {
-    margin-bottom: 20px;
+.page-title {
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2563eb;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.75rem;
 }
 
 .panels-container {
-    display: flex;
-    gap: 20px;
-    min-height: 500px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 1.5rem;
+    min-height: 600px;
     width: 100%;
-    flex-wrap: wrap;
     overflow: hidden;
 }
 
 .panel {
     flex: 1;
-    padding: 20px;
-    background-color: var(--card-bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 0.75rem;
     overflow: auto;
     display: flex;
     flex-direction: column;
-    max-width: calc(50% - 10px);
     min-width: 300px;
-    max-height: calc(100vh - 150px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease-in-out;
 }
 
-.request-panel {
+.panel:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.panel-request, .panel-response {
+    max-width: 100%;
+    max-height: calc(100vh - 100px);
+}
+
+.section-title {
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.response-panel {
-    display: flex;
-    flex-direction: column;
+.subsection-title {
+    margin-bottom: 0.75rem;
+    margin-top: 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #4b5563;
 }
 
+/* Form styles */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 1.25rem;
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 3px solid #3b82f6;
+    transition: all 0.2s ease;
 }
 
-.form-group label {
+.form-group:hover {
+    background-color: #f3f4f6;
+}
+
+.form-label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #4b5563;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.input-field, .input-select {
     width: 100%;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: #111827;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
 }
 
-.checkbox {
+.input-field:focus, .input-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.checkbox-group {
     display: flex;
     align-items: center;
-
+    background-color: #f9fafb;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
 }
 
-.checkbox {
-    display: flex;
-    align-items: center;
+.checkbox-input {
+    margin-right: 0.75rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    accent-color: #3b82f6;
 }
 
-.checkbox input {
-    width: auto;
-    margin-right: 8px;
+.checkbox-label {
+    font-weight: 500;
+    color: #4b5563;
 }
 
-.checkbox label {
-    margin-bottom: 0;
-}
-
+/* Cookie styles */
 .cookies-container {
-    margin-top: 10px;
+    margin-top: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
-.cookie-item {
+.cookie-entry {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px dashed #e5e7eb;
 }
 
-.cookie-item input {
+.cookie-entry:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.cookie-input {
     flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: #111827;
+    transition: border-color 0.2s ease;
 }
 
-.delete-btn {
-    background-color: var(--button-delete);
+.cookie-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.remove-button {
+    width: 2rem;
+    height: 2rem;
+    background-color: #ef4444;
     color: white;
-    width: 30px;
-    height: 30px;
+    border-radius: 0.5rem;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.add-btn {
-    background-color: var(--button-primary);
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 4px;
     cursor: pointer;
-    margin-top: 5px;
+    transition: all 0.2s ease;
 }
 
-.json-editor-container {
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    overflow: hidden;
+.remove-button:hover {
+    background-color: #dc2626;
+    transform: scale(1.05);
 }
 
-.json-editor {
-    width: 100%;
-    padding: 10px;
+.add-button-small {
+    margin-top: 0.5rem;
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+}
+
+.add-button-small:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Browser actions styles */
+.actions-container {
+    margin-top: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.action-entry {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #f9fafb;
+    transition: all 0.2s ease;
+}
+
+.action-entry:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.action-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.action-select {
+    flex-grow: 1;
+    padding: 0.5rem 0.75rem;
+    margin-right: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: #111827;
+}
+
+.action-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.action-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.action-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.action-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: #111827;
+    transition: all 0.2s ease;
+}
+
+.action-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.action-textarea {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: #f3f4f6;
+    color: #111827;
     font-family: monospace;
     resize: vertical;
-    background-color: var(--code-bg-color);
-    color: var(--code-text-color);
+    transition: all 0.2s ease;
+    min-height: 100px;
+}
+
+.action-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+/* JSON textarea */
+.json-container {
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.json-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9rem;
+    resize: vertical;
+    background-color: #f3f4f6;
+    color: #111827;
     border: none;
-    max-height: 400px;
-    overflow: auto;
-}
-
-.button-container {
-    margin-top: 20px;
-}
-
-.send-btn {
-    background-color: var(--button-primary);
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.send-btn:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-.response-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
     min-height: 200px;
-    /* Ensure minimum height for content */
+    transition: all 0.2s ease;
 }
 
-.response-status {
-    margin-bottom: 10px;
-    padding: 5px 10px;
-    background-color: var(--table-header-bg);
-    border-radius: 4px;
-    font-weight: bold;
+.json-textarea:focus {
+    outline: none;
+    background-color: #e5e7eb;
 }
 
-.json-response {
-    flex: 1;
-    padding: 15px;
-    background-color: var(--code-bg-color);
-    color: var(--code-text-color);
-    border-radius: 4px;
-    overflow: auto;
-    /* Allow scrolling in both directions for code blocks */
-    font-family: monospace;
-    white-space: pre-wrap;
-    max-height: calc(100vh - 250px);
+/* Submit button */
+.form-actions {
+    margin-top: 1.5rem;
 }
 
-.no-response-message {
-    flex: 1;
+.submit-button {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0.5rem;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #888;
-    font-style: italic;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/* Loading state styling */
+.submit-button:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+
+.submit-button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Response styles */
 .loading-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 1rem;
     padding: 2rem;
 }
 
 .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid var(--button-primary, #42b983);
+    width: 3rem;
+    height: 3rem;
+    border: 4px solid #3b82f6;
+    border-top: 4px solid transparent;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-/* Responsive design for smaller screens */
-@media (max-width: 768px) {
-    .panels-container {
-        flex-direction: column;
-        height: auto;
-    }
-
-    .panel {
-        max-width: 100%;
-        margin-bottom: 20px;
-        min-height: 300px;
-        /* Ensure panels have minimum height */
-        height: auto;
-        /* Allow height to grow as needed */
-        max-height: calc(100vh - 100px);
-    }
-
-    .json-editor,
-    .json-response {
-        max-height: 300px;
-    }
+.loading-text {
+    color: #6b7280;
 }
 
-@media (max-width: 480px) {
-    .api-request-page {
-        padding: 10px;
-    }
+.response-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
 
+.response-status {
+    margin-bottom: 0.625rem;
+    padding: 0.375rem;
+    background-color: #f3f4f6;
+    border-radius: 0.375rem;
+    font-weight: 700;
+}
+
+.response-content {
+    flex: 1;
+    padding: 1rem;
+    background-color: #f3f4f6;
+    color: #111827;
+    border-radius: 0.375rem;
+    overflow: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+    max-height: calc(100vh - 250px);
+}
+
+.empty-response {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
     .panel {
-        padding: 15px;
-        min-width: 100%;
+        background-color: #1f2937;
+        border-color: #374151;
     }
-
-    .form-group {
-        margin-bottom: 12px;
+    
+    .input-field, .input-select, .action-select, .action-input {
+        background-color: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
     }
-
-    .cookie-item {
-        flex-direction: column;
-        gap: 5px;
+    
+    .cookies-container, .actions-container {
+        background-color: #111827;
+        border-color: #374151;
     }
-
-    .cookie-item input {
-        width: 100%;
+    
+    .action-entry {
+        background-color: #1f2937;
+        border-color: #374151;
     }
-
-    .cookie-item .delete-btn {
-        align-self: flex-end;
+    
+    .action-textarea, .json-textarea {
+        background-color: #111827;
+        color: #f9fafb;
     }
-
-    .send-btn {
-        width: 100%;
+    
+    .response-status {
+        background-color: #374151;
+    }
+    
+    .response-content {
+        background-color: #111827;
+        color: #f9fafb;
+    }
+    
+    .loading-text, .empty-response {
+        color: #9ca3af;
     }
 }
 </style>

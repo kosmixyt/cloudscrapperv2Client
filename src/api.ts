@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:8000";
+export const baseUrl = "http://localhost:8000";
 
 export async function createUser(email: string, fullName: string, password: string) {
     const response = await fetch(`${baseUrl}/users/`, {
