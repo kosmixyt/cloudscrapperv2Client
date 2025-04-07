@@ -1,130 +1,143 @@
 <template>
-    <div class="home-container" :class="{ 'dark-mode': isDarkMode }">
+    <div class="home-container">
         <!-- Hero Section -->
-        <div class="hero-section">
-            <h1 class="app-title">WebScraper Pro</h1>
-            <p class="app-description">Extrayez des données de n'importe quel site internet en quelques clics</p>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">WebScraper Pro</h1>
+                <p class="hero-description">Extrayez des données de n'importe quel site internet en quelques clics</p>
 
-            <div class="theme-switch">
-                <button @click="toggleDarkMode" class="theme-button">
-                    <span v-if="isDarkMode">☀️</span>
-                    <span v-else>🌙</span>
-                </button>
-            </div>
-
-            <!-- Demo Section -->
-            <div class="demo-box">
-                <!-- Browser Demo Animation -->
-                <div class="demo-animation-container">
-                    <div class="demo-animation">
-                        <div class="website-mockup">
-                            <div class="browser-header">
-                                <span class="browser-dot"></span>
-                                <span class="browser-dot"></span>
-                                <span class="browser-dot"></span>
-                                <div class="browser-address-bar">https://{{ demoUrl || 'example.com' }}</div>
+                <!-- Demo Box -->
+                <div class="demo-box">
+                    <!-- Browser Demo Animation -->
+                    <div class="demo-animation-container">
+                        <div class="demo-animation">
+                            <div class="browser-mockup">
+                                <div class="browser-header">
+                                    <div class="browser-controls">
+                                        <span class="browser-dot"></span>
+                                        <span class="browser-dot"></span>
+                                        <span class="browser-dot"></span>
+                                    </div>
+                                    <div class="browser-address-bar">https://{{ demoUrl || 'example.com' }}</div>
+                                </div>
+                                <div class="browser-content">
+                                    <div v-for="i in 5" :key="i" class="data-element"
+                                        :class="{ 'highlight': highlightIndex === i }"></div>
+                                </div>
                             </div>
-                            <div class="browser-content">
-                                <div v-for="i in 5" :key="i" class="data-element"
-                                    :class="{ 'highlight': highlightIndex === i }"></div>
+                            <div class="extraction-arrow">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
                             </div>
-                        </div>
-                        <div class="extraction-animation">
-                            <div class="extraction-arrow">→</div>
-                        </div>
-                        <div class="data-container">
-                            <div v-for="i in 5" :key="i" class="data-row"
-                                :class="{ 'highlight': highlightIndex === i }">
+                            <div class="data-container">
+                                <div v-for="i in 5" :key="i" class="data-row"
+                                    :class="{ 'highlight': highlightIndex === i }">
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="demo-form">
-                    <h3>Essayez maintenant!</h3>
-                    <div class="input-group">
-                        <input type="text" v-model="demoUrl" placeholder="Entrez l'URL du site" class="url-input">
-                        <button @click="runDemo" class="demo-button" :disabled="isLoading">
-                            {{ isLoading ? 'Extraction...' : 'Extraire' }}
-                        </button>
-                    </div>
+                    <!-- Try It Form -->
+                    <div class="demo-form">
+                        <h2 class="form-title">Essayez maintenant!</h2>
+                        <div class="url-input-group">
+                            <input type="text" v-model="demoUrl" placeholder="Entrez l'URL du site" class="url-input">
+                            <button @click="runDemo" class="demo-button" :disabled="isLoading">
+                                <span v-if="isLoading" class="btn-spinner"></span>
+                                <span>{{ isLoading ? 'Extraction...' : 'Extraire' }}</span>
+                            </button>
+                        </div>
 
-                    <div v-if="showResults" class="results-container">
-                        <div v-if="isLoading" class="loading-spinner"></div>
-                        <div v-else class="data-results">
-                            <h4>Données extraites (démo)</h4>
-                            <div class="data-table">
-                                <div v-for="(item, index) in demoResults" :key="index" class="data-item">
-                                    <strong>{{ item.label }}:</strong> {{ item.value }}
+                        <div class="popular-sites">
+                            <h3 class="sites-title">Sites populaires</h3>
+                            <div class="site-chips">
+                                <button class="site-chip" @click="selectSite('amazon.com')">Amazon</button>
+                                <button class="site-chip" @click="selectSite('twitter.com')">Twitter</button>
+                                <button class="site-chip" @click="selectSite('linkedin.com')">LinkedIn</button>
+                                <button class="site-chip" @click="selectSite('reddit.com')">Reddit</button>
+                                <button class="site-chip" @click="selectSite('instagram.com')">Instagram</button>
+                            </div>
+                        </div>
+
+                        <div v-if="showResults" class="results-container">
+                            <div v-if="isLoading" class="loading-state">
+                                <div class="loading-spinner"></div>
+                                <p>Extraction des données en cours...</p>
+                            </div>
+                            <div v-else class="data-results">
+                                <h3 class="results-title">Données extraites (démo)</h3>
+                                <div class="data-table">
+                                    <div v-for="(item, index) in demoResults" :key="index" class="data-item">
+                                        <div class="data-label">{{ item.label }}</div>
+                                        <div class="data-value">{{ item.value }}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="example-sites">
-                <h3>Sites populaires</h3>
-                <div class="site-chips">
-                    <div class="site-chip" @click="selectSite('amazon.com')">Amazon</div>
-                    <div class="site-chip" @click="selectSite('twitter.com')">Twitter</div>
-                    <div class="site-chip" @click="selectSite('linkedin.com')">LinkedIn</div>
-                    <div class="site-chip" @click="selectSite('reddit.com')">Reddit</div>
-                    <div class="site-chip" @click="selectSite('instagram.com')">Instagram</div>
-                </div>
-            </div>
-        </div>
+        </section>
 
         <!-- Features Section -->
-        <div class="features-section">
-            <h2>Fonctionnalités puissantes</h2>
+        <section class="features-section">
+            <h2 class="section-title">Fonctionnalités puissantes</h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🔍</div>
-                    <h3>Reconnaissance de données</h3>
-                    <p>Notre IA détecte automatiquement les données importantes</p>
+                    <h3 class="feature-title">Reconnaissance de données</h3>
+                    <p class="feature-description">Notre IA détecte automatiquement les données importantes sur
+                        n'importe quelle page web.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📊</div>
-                    <h3>Export de données</h3>
-                    <p>Exportez en CSV, JSON ou Excel en un clic</p>
+                    <h3 class="feature-title">Export de données</h3>
+                    <p class="feature-description">Exportez facilement vos données extraites en CSV, JSON ou Excel en un
+                        seul clic.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">⏱️</div>
-                    <h3>Scraping planifié</h3>
-                    <p>Automatisez vos extractions à intervalles réguliers</p>
+                    <h3 class="feature-title">Scraping planifié</h3>
+                    <p class="feature-description">Automatisez vos extractions avec notre système de planification
+                        flexible.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🛡️</div>
-                    <h3>Proxy intelligent</h3>
-                    <p>Évitez les blocages avec notre système de rotation de proxy</p>
+                    <h3 class="feature-title">Proxy intelligent</h3>
+                    <p class="feature-description">Évitez les blocages grâce à notre système avancé de rotation de
+                        proxy.</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- User Section -->
-        <div v-if="isAuthenticated" class="user-section">
+        <!-- User or CTA Section -->
+        <section v-if="isAuthenticated" class="user-section">
             <div class="welcome-panel">
-                <h2>Bienvenue, {{ userName }}!</h2>
-                <p>Prêt à extraire des données? Accédez à tous vos projets et extractions sauvegardées.</p>
-                <router-link to="/dashboard" class="action-button">Accéder au tableau de bord</router-link>
+                <h2 class="welcome-title">Bienvenue, {{ userName }}!</h2>
+                <p class="welcome-message">Prêt à extraire des données? Accédez à tous vos projets et extractions
+                    sauvegardées.</p>
+                <router-link to="/dashboard" class="dashboard-link">Accéder au tableau de bord</router-link>
             </div>
-        </div>
-        <div v-else class="cta-section">
+        </section>
+        <section v-else class="cta-section">
             <div class="cta-panel">
-                <h2>Débloquez tout le potentiel</h2>
-                <p>Créez un compte pour sauvegarder vos extractions, programmer des tâches et bien plus!</p>
+                <h2 class="cta-title">Débloquez tout le potentiel</h2>
+                <p class="cta-description">Créez un compte pour sauvegarder vos extractions, programmer des tâches et
+                    bien plus!</p>
                 <div class="cta-buttons">
                     <router-link to="/login" class="auth-button login">Se connecter</router-link>
                     <router-link to="/register" class="auth-button register">S'inscrire</router-link>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const isAuthenticated = ref(false);
 const userName = ref('');
@@ -135,24 +148,7 @@ const demoResults = ref([]);
 const highlightIndex = ref(null);
 let animationInterval = null;
 
-// Dark mode implementation
-const isDarkMode = ref(false);
-
-// Check system preference for dark mode
-const checkSystemDarkMode = () => {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-};
-
-// Toggle dark mode
-const toggleDarkMode = () => {
-    isDarkMode.value = !isDarkMode.value;
-    localStorage.setItem('darkMode', isDarkMode.value ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', isDarkMode.value ? 'dark' : 'light');
-};
-
-// Watch for system changes
-let darkModeMediaQuery;
-
+// Check for authentication
 onMounted(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -167,35 +163,10 @@ onMounted(() => {
 
     // Start animation
     startAnimation();
-
-    // Check for saved preference or system preference
-    const savedTheme = localStorage.getItem('darkMode');
-    if (savedTheme) {
-        isDarkMode.value = savedTheme === 'dark';
-    } else {
-        isDarkMode.value = checkSystemDarkMode();
-    }
-
-    // Set the initial theme
-    document.documentElement.setAttribute('data-theme', isDarkMode.value ? 'dark' : 'light');
-
-    // Listen for system theme changes
-    darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    darkModeMediaQuery.addEventListener('change', (e) => {
-        if (!localStorage.getItem('darkMode')) {
-            isDarkMode.value = e.matches;
-            document.documentElement.setAttribute('data-theme', isDarkMode.value ? 'dark' : 'light');
-        }
-    });
 });
 
 onUnmounted(() => {
     clearInterval(animationInterval);
-
-    // Clean up event listener
-    if (darkModeMediaQuery) {
-        darkModeMediaQuery.removeEventListener('change', () => { });
-    }
 });
 
 function startAnimation() {
@@ -283,244 +254,203 @@ function generateDemoResults() {
 </script>
 
 <style scoped>
-:root {
-    --background-color: #ffffff;
-    --text-color: #333333;
-    --secondary-text-color: #666666;
-    --card-background: #ffffff;
-    --card-shadow: rgba(0, 0, 0, 0.08);
-    --primary-color: #42b983;
-    --primary-color-hover: #3aa876;
-    --primary-color-disabled: #a8d5c2;
-    --secondary-background: #f8f9fa;
-    --border-color: #e0e0e0;
-    --highlight-color: #f0f0f0;
-    --gradient-start: #3a7bd5;
-    --gradient-end: #42b983;
-    --browser-header: #f1f1f1;
-    --element-bg: #eeeeee;
-}
-
-[data-theme="dark"] {
-    --background-color: #1a1a1a;
-    --text-color: #f0f0f0;
-    --secondary-text-color: #cccccc;
-    --card-background: #2a2a2a;
-    --card-shadow: rgba(0, 0, 0, 0.2);
-    --primary-color: #42b983;
-    --primary-color-hover: #4ece95;
-    --primary-color-disabled: #2d7a58;
-    --secondary-background: #2c2c2c;
-    --border-color: #444444;
-    --highlight-color: #3c3c3c;
-    --gradient-start: #2a5a9c;
-    --gradient-end: #328462;
-    --browser-header: #383838;
-    --element-bg: #444444;
-}
-
 .home-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    color: var(--text-color);
-    background-color: var(--background-color);
-    transition: all 0.3s ease;
-}
-
-/* Theme switch button */
-.theme-switch {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-}
-
-.theme-button {
-    background: var(--secondary-background);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 20px;
-    box-shadow: 0 2px 8px var(--card-shadow);
-    transition: all 0.3s;
-}
-
-.theme-button:hover {
-    transform: scale(1.1);
+    width: 100%;
 }
 
 /* Hero Section */
 .hero-section {
-    text-align: center;
-    padding: 1rem 0 3rem;
     position: relative;
+    padding: var(--spacing-xl) 0 var(--spacing-2xl);
+    text-align: center;
+    background: linear-gradient(-10deg, var(--bg-color) 0%, var(--bg-color-offset) 100%);
+    overflow: hidden;
 }
 
-.app-title {
-    font-size: 3.5rem;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: radial-gradient(circle at top right, var(--primary-light), transparent 70%);
+    opacity: 0.5;
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: var(--spacing-md);
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    letter-spacing: -0.025em;
 }
 
-.app-description {
-    font-size: 1.2rem;
-    color: var(--secondary-text-color);
-    margin-bottom: 3rem;
+.hero-description {
+    font-size: 1.25rem;
+    color: var(--text-color-secondary);
+    max-width: 600px;
+    margin: 0 auto var(--spacing-xl);
 }
 
 /* Demo Box */
 .demo-box {
-    background: var(--secondary-background);
-    border-radius: 16px;
-    box-shadow: 0 10px 30px var(--card-shadow);
-    padding: 2rem;
-    margin-bottom: 3rem;
     display: flex;
     flex-direction: column;
+    gap: var(--spacing-lg);
+    margin: var(--spacing-lg) auto;
+    max-width: 1000px;
+    background-color: var(--card-bg-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-lg);
+    overflow: hidden;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
     .demo-box {
         flex-direction: row;
         align-items: flex-start;
     }
 }
 
-/* Improved Animation Container */
+/* Demo Animation */
 .demo-animation-container {
     width: 100%;
-    max-width: 480px;
-    margin: 0 auto 2rem;
-    padding: 1rem;
-    background: var(--card-background);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px var(--card-shadow);
+    padding: var(--spacing-md);
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
     .demo-animation-container {
-        width: 45%;
-        margin: 0;
+        width: 50%;
     }
 }
 
-/* Animation */
 .demo-animation {
+    width: 100%;
+    max-width: 450px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    margin: 1rem 0;
-    flex-wrap: wrap;
+    gap: var(--spacing-md);
 }
 
 @media (min-width: 480px) {
     .demo-animation {
-        flex-wrap: nowrap;
+        flex-direction: row;
+        align-items: flex-start;
     }
 }
 
-.website-mockup {
-    width: 220px;
+.browser-mockup {
+    width: 200px;
     min-width: 180px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 6px 16px var(--card-shadow);
-    background: var(--card-background);
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
+    background-color: var(--bg-color);
     border: 1px solid var(--border-color);
 }
 
 .browser-header {
-    background: var(--browser-header);
-    padding: 10px;
+    background-color: var(--bg-color-offset);
+    padding: var(--spacing-sm);
     display: flex;
     align-items: center;
+    gap: var(--spacing-sm);
     border-bottom: 1px solid var(--border-color);
 }
 
+.browser-controls {
+    display: flex;
+    gap: 4px;
+}
+
 .browser-dot {
-    height: 12px;
-    width: 12px;
+    height: 10px;
+    width: 10px;
     border-radius: 50%;
     display: inline-block;
-    margin-right: 6px;
 }
 
 .browser-dot:nth-child(1) {
-    background: #ff5f56;
+    background-color: #ff5f56;
 }
 
 .browser-dot:nth-child(2) {
-    background: #ffbd2e;
+    background-color: #ffbd2e;
 }
 
 .browser-dot:nth-child(3) {
-    background: #27c93f;
+    background-color: #27c93f;
 }
 
 .browser-address-bar {
     flex-grow: 1;
-    background: var(--background-color);
-    margin-left: 10px;
-    padding: 6px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    color: var(--text-color);
+    background-color: var(--bg-color);
+    padding: 4px 8px;
+    border-radius: var(--radius);
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
     border: 1px solid var(--border-color);
 }
 
 .browser-content {
-    padding: 16px;
-    height: 160px;
-    background: white;
+    padding: var(--spacing-md);
+    height: 150px;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-}
-
-[data-theme="dark"] .browser-content {
-    background: #333;
+    justify-content: space-between;
 }
 
 .data-element {
-    height: 14px;
-    background: var(--element-bg);
-    margin-bottom: 16px;
-    border-radius: 4px;
-    transition: background 0.3s ease, transform 0.2s ease;
+    height: 12px;
+    background-color: var(--bg-color-offset);
+    border-radius: var(--radius-sm);
+    transition: all 0.3s ease;
 }
 
 .data-element.highlight {
-    background: var(--primary-color);
-    transform: translateX(6px);
-}
-
-.extraction-animation {
-    padding: 0 15px;
-    margin: 10px 0;
-}
-
-@media (min-width: 480px) {
-    .extraction-animation {
-        margin: 0;
-    }
+    background-color: var(--primary);
+    transform: translateX(8px);
 }
 
 .extraction-arrow {
-    font-size: 28px;
-    color: var(--primary-color);
-    font-weight: bold;
+    display: none;
+    color: var(--primary);
     animation: pulse 2s infinite;
+    width: 40px;
+    height: 40px;
+}
+
+.extraction-arrow svg {
+    width: 100%;
+    height: 100%;
+}
+
+@media (min-width: 480px) {
+    .extraction-arrow {
+        display: block;
+    }
 }
 
 @keyframes pulse {
@@ -543,62 +473,106 @@ function generateDemoResults() {
 .data-container {
     width: 140px;
     min-width: 120px;
-    background: var(--card-background);
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 6px 16px var(--card-shadow);
+    background-color: var(--card-bg-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
 }
 
 .data-row {
-    height: 14px;
-    background: var(--element-bg);
-    margin-bottom: 16px;
-    border-radius: 4px;
-    transition: background 0.3s ease, transform 0.2s ease;
+    height: 12px;
+    background-color: var (--bg-color-offset);
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    transition: all 0.3s ease;
 }
 
 .data-row.highlight {
-    background: var(--primary-color);
-    transform: translateX(-6px);
+    background-color: var(--primary);
+    transform: translateX(-8px);
 }
 
 /* Demo Form */
 .demo-form {
     flex: 1;
-    text-align: left;
-    margin-left: 0;
-    padding-top: 1rem;
-    background: var(--card-background);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 16px var(--card-shadow);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
 }
 
-@media (min-width: 768px) {
-    .demo-form {
-        margin-left: 2rem;
-        padding-top: 1.5rem;
-        width: 55%;
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: var(--spacing-md);
+    display: inline-block;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: var(--spacing-xs);
+}
+
+.url-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+@media (min-width: 640px) {
+    .url-input-group {
+        flex-direction: row;
     }
 }
 
-/* Results */
-.results-container {
-    background: var(--card-background);
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px var(--card-shadow);
-    min-height: 200px;
+.url-input {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: var(--transition);
 }
 
-.loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid var(--border-color);
-    border-top: 4px solid var(--primary-color);
+.url-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.demo-button {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--button-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+.demo-button:hover:not(:disabled) {
+    background-color: var(--button-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.demo-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    margin: 60px auto;
+    border-top-color: white;
     animation: spin 1s linear infinite;
 }
 
@@ -612,158 +586,261 @@ function generateDemoResults() {
     }
 }
 
-.data-results h4 {
-    margin-top: 0;
-    color: var(--text-color);
-    border-bottom: 2px solid var(--highlight-color);
-    padding-bottom: 0.8rem;
+/* Popular Sites */
+.popular-sites {
+    margin-top: var(--spacing-md);
 }
 
-.data-table {
-    margin-top: 1rem;
-}
-
-.data-item {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--highlight-color);
-}
-
-.data-item:last-child {
-    border: none;
-}
-
-/* Example Sites */
-.example-sites {
-    margin-top: 3rem;
+.sites-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    margin-bottom: var(--spacing-sm);
 }
 
 .site-chips {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 1rem;
+    gap: var(--spacing-sm);
 }
 
 .site-chip {
-    background: var(--element-bg);
-    color: var(--text-color);
-    padding: 8px 20px;
-    border-radius: 30px;
-    font-size: 14px;
+    background-color: var(--bg-color-offset);
+    color: var(--text-color-secondary);
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: var(--transition);
 }
 
 .site-chip:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(66, 185, 131, 0.2);
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* Results */
+.results-container {
+    margin-top: var(--spacing-md);
+    background-color: var(--bg-color-offset);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow);
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    color: var(--text-color-secondary);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.results-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.data-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    border-bottom: 1px dashed var(--border-color);
+}
+
+@media (min-width: 640px) {
+    .data-item {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.data-label {
+    font-weight: 600;
+    color: var(--text-color);
+    min-width: 140px;
+}
+
+.data-value {
+    color: var(--text-color-secondary);
+    flex: 1;
 }
 
 /* Features Section */
 .features-section {
-    margin: 4rem 0;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+    background-color: var(--bg-color);
     text-align: center;
-    padding: 2rem 0;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background-color: var(--primary);
+    border-radius: var(--radius-full);
 }
 
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 24px;
-    margin-top: 2.5rem;
+    gap: var(--spacing-lg);
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .feature-card {
-    background: var(--card-background);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px var(--card-shadow);
-    padding: 2rem;
-    transition: transform 0.3s, box-shadow 0.3s;
+    background-color: var(--card-bg-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    height: 100%;
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg);
 }
 
 .feature-icon {
     font-size: 2.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-md);
 }
 
-/* User & CTA Sections */
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.feature-description {
+    color: var(--text-color-secondary);
+    line-height: 1.5;
+}
+
+/* User/CTA Sections */
 .user-section,
 .cta-section {
-    margin: 4rem 0;
+    padding: var(--spacing-2xl) var(--spacing-lg);
 }
 
 .welcome-panel,
 .cta-panel {
-    background: linear-gradient(135deg, #42b983, #3a7bd5);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
-    border-radius: 16px;
-    padding: 3rem 2rem;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
     text-align: center;
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
-    box-shadow: 0 10px 30px rgba(58, 123, 213, 0.2);
+    box-shadow: var(--shadow-lg);
 }
 
-.action-button {
+.welcome-title,
+.cta-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    color: white;
+}
+
+.welcome-message,
+.cta-description {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-lg);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.dashboard-link {
     display: inline-block;
-    background: white;
-    color: #42b983;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-weight: bold;
+    background-color: white;
+    color: var(--primary);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-full);
+    font-weight: 600;
     text-decoration: none;
-    margin-top: 1.5rem;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: var(--transition);
 }
 
-.action-button:hover {
+.dashboard-link:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
 }
 
 .cta-buttons {
     display: flex;
     justify-content: center;
-    gap: 16px;
-    margin-top: 1.5rem;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
 }
 
 .auth-button {
-    padding: 12px 28px;
-    border-radius: 30px;
-    font-weight: bold;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-full);
+    font-weight: 600;
     text-decoration: none;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: var(--transition);
+    display: inline-block;
 }
 
 .auth-button.login {
-    background: white;
-    color: #42b983;
+    background-color: white;
+    color: var(--primary);
 }
 
 .auth-button.register {
-    background: transparent;
+    background-color: transparent;
     color: white;
     border: 2px solid white;
 }
 
 .auth-button:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
 }
-
-/* Dark mode specific styles */
-.dark-mode .auth-button.login {
-    color: var(--primary-color);
-}
-
-/* Keep other styles as they are */
 </style>

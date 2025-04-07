@@ -4,18 +4,14 @@
 
         <!-- Navigation tabs -->
         <div class="tab-navigation">
-            <button 
-                :class="{ 'tab-button': true, 'active-tab': activeTab === 'hosts', 'inactive-tab': activeTab !== 'hosts' }"
-                @click="activeTab = 'hosts'">
+            <button :class="{ 'tab-button': true, 'active-tab': activeTab === 'hosts' }" @click="activeTab = 'hosts'">
                 Hôtes autorisés
             </button>
-            <button 
-                :class="{ 'tab-button': true, 'active-tab': activeTab === 'requests', 'inactive-tab': activeTab !== 'requests' }"
+            <button :class="{ 'tab-button': true, 'active-tab': activeTab === 'requests' }"
                 @click="activeTab = 'requests'">
                 Demandes
             </button>
-            <button 
-                :class="{ 'tab-button': true, 'active-tab': activeTab === 'sessions', 'inactive-tab': activeTab !== 'sessions' }"
+            <button :class="{ 'tab-button': true, 'active-tab': activeTab === 'sessions' }"
                 @click="activeTab = 'sessions'">
                 Sessions Chrome
             </button>
@@ -23,46 +19,46 @@
 
         <!-- Allowed Hosts Tab -->
         <div class="tab-content" v-if="activeTab === 'hosts'">
-            <div class="tab-section">
+            <div class="card">
                 <h2 class="section-title">Hôtes autorisés</h2>
 
                 <!-- Formulaire pour ajouter un nouveau host -->
                 <div class="form-container">
                     <h3 class="form-title">Ajouter un nouvel hôte</h3>
                     <div class="form-group">
-                        <input v-model="newHost" placeholder="Entrer l'URL d'origine (ex: https://example.com)" 
-                               class="input-field" />
-                        <button @click="createHost" :disabled="isLoading" 
-                                class="add-button">Ajouter</button>
+                        <input v-model="newHost" placeholder="Entrer l'URL d'origine (ex: https://example.com)"
+                            class="input-field" />
+                        <button @click="createHost" :disabled="isLoading" class="btn-primary">Ajouter</button>
                     </div>
                 </div>
 
                 <!-- Tableau des hosts -->
                 <div class="table-container" v-if="hosts.length > 0">
-                    <table class="data-table">
+                    <table>
                         <thead>
                             <tr>
-                                <th class="table-header">ID</th>
-                                <th class="table-header">Origine</th>
-                                <th class="table-header">Créé le</th>
-                                <th class="table-header">Actions</th>
+                                <th>ID</th>
+                                <th>Origine</th>
+                                <th>Créé le</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="host in hosts" :key="host.id" class="table-row">
-                                <td class="table-cell">{{ host.id }}</td>
-                                <td class="table-cell">{{ host.origin }}</td>
-                                <td class="table-cell">{{ new Date(host.created_at).toLocaleString() }}</td>
-                                <td class="table-cell">
-                                    <button @click="viewHost(host)" class="view-button">Voir</button>
-                                    <button @click="deleteHost(host.id)" class="delete-button">Supprimer</button>
+                            <tr v-for="host in hosts" :key="host.id">
+                                <td>{{ host.id }}</td>
+                                <td>{{ host.origin }}</td>
+                                <td>{{ new Date(host.created_at).toLocaleString() }}</td>
+                                <td class="actions-cell">
+                                    <button @click="viewHost(host)" class="btn-secondary">Voir</button>
+                                    <button @click="deleteHost(host.id)" class="btn-danger">Supprimer</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div v-else class="empty-message">
+                <div v-else class="empty-state">
+                    <div class="empty-icon">📝</div>
                     <p>Aucun hôte autorisé trouvé. Ajoutez votre premier hôte ci-dessus.</p>
                 </div>
             </div>
@@ -70,39 +66,41 @@
 
         <!-- Requests Tab -->
         <div class="tab-content" v-if="activeTab === 'requests'">
-            <div class="tab-section">
+            <div class="card">
                 <h2 class="section-title">Demandes</h2>
 
                 <!-- Tableau des requêtes -->
                 <div class="table-container" v-if="requests.length > 0">
-                    <table class="data-table">
+                    <table>
                         <thead>
                             <tr>
-                                <th class="table-header">ID</th>
-                                <th class="table-header">Origine</th>
-                                <th class="table-header">URL</th>
-                                <th class="table-header">Créé le</th>
-                                <th class="table-header">Mis à jour</th>
-                                <th class="table-header">Actions</th>
+                                <th>ID</th>
+                                <th>Origine</th>
+                                <th>URL</th>
+                                <th>Créé le</th>
+                                <th>Mis à jour</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="request in requests" :key="request.id" class="table-row">
-                                <td class="table-cell">{{ request.id }}</td>
-                                <td class="table-cell">{{ request.url }}</td>
-                                <td class="table-cell">{{ request.chrome_session_id }}</td>
-                                <td class="table-cell">{{ new Date(request.created_at).toLocaleString() }}</td>
-                                <td class="table-cell">{{ request.updated_at ? new Date(request.updated_at).toLocaleString() : '-' }}</td>
-                                <td class="table-cell">
-                                    <button @click="viewRequestDetails(request)" class="view-button">Détails</button>
-                                    <button @click="viewRequestScreenshot(request.id)" class="screenshot-button">Screenshot</button>
+                            <tr v-for="request in requests" :key="request.id">
+                                <td>{{ request.id }}</td>
+                                <td>{{ request.url }}</td>
+                                <td>{{ request.chrome_session_id }}</td>
+                                <td>{{ new Date(request.created_at).toLocaleString() }}</td>
+                                <td>{{ request.updated_at ? new Date(request.updated_at).toLocaleString() : '-' }}</td>
+                                <td class="actions-cell">
+                                    <button @click="viewRequestDetails(request)" class="btn-secondary">Détails</button>
+                                    <button @click="viewRequestScreenshot(request.id)"
+                                        class="btn-primary">Screenshot</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div v-else class="empty-message">
+                <div v-else class="empty-state">
+                    <div class="empty-icon">🔍</div>
                     <p>Aucune demande trouvée.</p>
                 </div>
             </div>
@@ -110,77 +108,117 @@
 
         <!-- Chrome Sessions Tab -->
         <div class="tab-content" v-if="activeTab === 'sessions'">
-            <div class="tab-section">
+            <div class="card">
                 <h2 class="section-title">Sessions Chrome</h2>
 
                 <!-- Tableau des sessions -->
                 <div class="table-container" v-if="sessions.length > 0">
-                    <table class="data-table">
+                    <table>
                         <thead>
                             <tr>
-                                <th class="table-header">ID</th>
-                                <th class="table-header">ID de Session</th>
-                                <th class="table-header">Proxy</th>
-                                <th class="table-header">Créé le</th>
-                                <th class="table-header">Mis à jour</th>
+                                <th>ID</th>
+                                <th>ID de Session</th>
+                                <th>Proxy</th>
+                                <th>Créé le</th>
+                                <th>Mis à jour</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="session in sessions" :key="session.id" class="table-row">
-                                <td class="table-cell">{{ session.id }}</td>
-                                <td class="table-cell">{{ session.session_id }}</td>
-                                <td class="table-cell">{{ session.proxy || 'Aucun' }}</td>
-                                <td class="table-cell">{{ new Date(session.created_at).toLocaleString() }}</td>
-                                <td class="table-cell">{{ session.updated_at ? new Date(session.updated_at).toLocaleString() : '-' }}</td>
+                            <tr v-for="session in sessions" :key="session.id">
+                                <td>{{ session.id }}</td>
+                                <td>{{ session.session_id }}</td>
+                                <td>{{ session.proxy || 'Aucun' }}</td>
+                                <td>{{ new Date(session.created_at).toLocaleString() }}</td>
+                                <td>{{ session.updated_at ? new Date(session.updated_at).toLocaleString() : '-' }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div v-else class="empty-message">
+                <div v-else class="empty-state">
+                    <div class="empty-icon">💻</div>
                     <p>Aucune session Chrome trouvée.</p>
                 </div>
             </div>
         </div>
 
         <!-- Modal pour les détails du host -->
-        <div v-if="selectedHost" class="modal-overlay">
+        <div v-if="selectedHost" class="modal-overlay" @click.self="selectedHost = null">
             <div class="modal-container">
-                <span class="modal-close" @click="selectedHost = null">&times;</span>
-                <h3 class="modal-title">Détails de l'hôte</h3>
-                <p class="modal-text"><strong>ID:</strong> {{ selectedHost.id }}</p>
-                <p class="modal-text"><strong>Origine:</strong> {{ selectedHost.origin }}</p>
-                <p class="modal-text"><strong>Créé le:</strong> {{ new Date(selectedHost.created_at).toLocaleString() }}</p>
+                <div class="modal-header">
+                    <h3 class="modal-title">Détails de l'hôte</h3>
+                    <button class="modal-close" @click="selectedHost = null">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="info-group">
+                        <span class="info-label">ID:</span>
+                        <span class="info-value">{{ selectedHost.id }}</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Origine:</span>
+                        <span class="info-value">{{ selectedHost.origin }}</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Créé le:</span>
+                        <span class="info-value">{{ new Date(selectedHost.created_at).toLocaleString() }}</span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Modal pour les détails de la requête -->
-        <div v-if="selectedRequest" class="modal-overlay">
+        <div v-if="selectedRequest" class="modal-overlay" @click.self="selectedRequest = null">
             <div class="modal-container">
-                <span class="modal-close" @click="selectedRequest = null">&times;</span>
-                <h3 class="modal-title">Détails de la demande</h3>
-                <p class="modal-text"><strong>ID:</strong> {{ selectedRequest.id }}</p>
-                <p class="modal-text"><strong>Origine ID:</strong> {{ selectedRequest.request_origin_id }}</p>
-                <p class="modal-text"><strong>Session Chrome ID:</strong> {{ selectedRequest.chrome_session_id }}</p>
-                <p class="modal-text"><strong>Créé le:</strong> {{ new Date(selectedRequest.created_at).toLocaleString() }}</p>
-                <p v-if="selectedRequest.updated_at" class="modal-text"><strong>Mis à jour:</strong> {{ new Date(selectedRequest.updated_at).toLocaleString() }}</p>
+                <div class="modal-header">
+                    <h3 class="modal-title">Détails de la demande</h3>
+                    <button class="modal-close" @click="selectedRequest = null">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="info-group">
+                        <span class="info-label">ID:</span>
+                        <span class="info-value">{{ selectedRequest.id }}</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Origine ID:</span>
+                        <span class="info-value">{{ selectedRequest.request_origin_id }}</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Session Chrome ID:</span>
+                        <span class="info-value">{{ selectedRequest.chrome_session_id }}</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Créé le:</span>
+                        <span class="info-value">{{ new Date(selectedRequest.created_at).toLocaleString() }}</span>
+                    </div>
+                    <div class="info-group" v-if="selectedRequest.updated_at">
+                        <span class="info-label">Mis à jour:</span>
+                        <span class="info-value">{{ new Date(selectedRequest.updated_at).toLocaleString() }}</span>
+                    </div>
 
-                <div class="response-section">
-                    <p class="modal-text"><strong>Réponse (décodée):</strong></p>
-                    <pre class="response-content">{{ decodeBase64(selectedRequest.string_response) || 'Pas de réponse' }}</pre>
+                    <div class="response-section">
+                        <h4>Réponse (décodée):</h4>
+                        <pre
+                            class="response-content">{{ decodeBase64(selectedRequest.string_response) || 'Pas de réponse' }}</pre>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Modal pour le screenshot de la requête -->
-        <div v-if="isScreenshotModalVisible" class="modal-overlay">
+        <div v-if="isScreenshotModalVisible" class="modal-overlay" @click.self="isScreenshotModalVisible = false">
             <div class="modal-container screenshot-modal">
-                <span class="modal-close" @click="isScreenshotModalVisible = false">&times;</span>
-                <h3 class="modal-title">Screenshot de la requête</h3>
-                <div class="screenshot-container">
-                    <img v-if="!isScreenshotLoading && screenshotUrl" :src="screenshotUrl" alt="Screenshot" class="screenshot-image" />
-                    <div v-else-if="isScreenshotLoading" class="loading-message">Chargement du screenshot...</div>
-                    <div v-else class="error-message">Aucun screenshot disponible</div>
+                <div class="modal-header">
+                    <h3 class="modal-title">Screenshot de la requête</h3>
+                    <button class="modal-close" @click="isScreenshotModalVisible = false">&times;</button>
+                </div>
+                <div class="modal-body screenshot-body">
+                    <img v-if="!isScreenshotLoading && screenshotUrl" :src="screenshotUrl" alt="Screenshot"
+                        class="screenshot-image" />
+                    <div v-else-if="isScreenshotLoading" class="loading-spinner"></div>
+                    <div v-else class="empty-state">
+                        <div class="empty-icon">🖼️</div>
+                        <p>Aucun screenshot disponible</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -395,342 +433,330 @@ export default defineComponent({
 });
 </script>
 
-<style>
-/* Common styles */
+<style scoped>
 .dashboard-container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 1.25rem;
+    width: 100%;
 }
 
 .page-title {
-    font-size: 1.5rem;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-color);
+    font-size: 1.75rem;
     font-weight: 700;
-    margin-bottom: 1.25rem;
 }
 
 /* Tab Navigation */
 .tab-navigation {
     display: flex;
-    margin-bottom: 1.25rem;
-    border-bottom: 1px solid #d1d5db;
-    overflow-x: auto;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .tab-button {
-    padding: 0.625rem 1.25rem;
-    margin-right: 0.25rem;
-    color: #111827;
-    background-color: white;
-    border: 1px solid #d1d5db;
-    border-top-left-radius: 0.375rem;
-    border-top-right-radius: 0.375rem;
-    white-space: nowrap;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: transparent;
+    color: var(--text-color-secondary);
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
 }
 
-.active-tab {
-    border-bottom: 1px solid white;
+.tab-button:hover {
+    color: var(--primary);
 }
 
-.inactive-tab {
-    border-bottom: 1px solid #d1d5db;
-}
-
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-    .tab-button {
-        background-color: #1f2937;
-        color: #f9fafb;
-        border-color: #374151;
-    }
-
-    .active-tab {
-        border-bottom: 1px solid #1f2937;
-    }
-
-    .inactive-tab {
-        border-bottom: 1px solid #374151;
-    }
+.tab-button.active-tab {
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
 }
 
 /* Tab Content */
 .tab-content {
-    padding: 1.25rem 0;
-}
-
-.tab-section {
-    margin-top: 1.25rem;
+    margin-top: var(--spacing-md);
 }
 
 .section-title {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-color);
     font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 1.25rem;
 }
 
-/* Form styles */
+/* Form Container */
 .form-container {
-    margin-bottom: 1.25rem;
-    padding: 1rem;
-    background-color: white;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: var(--bg-color-offset);
+    border-radius: var(--radius-lg);
 }
 
 .form-title {
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 .form-group {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--spacing-md);
+}
+
+@media (max-width: 640px) {
+    .form-group {
+        flex-direction: column;
+    }
 }
 
 .input-field {
     flex: 1;
-    padding: 0.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    background-color: white;
-    color: #111827;
-    margin-bottom: 0.5rem;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: var(--transition);
 }
 
-.add-button {
-    padding: 0.5rem 1rem;
-    background-color: #16a34a;
-    color: white;
-    border-radius: 0.375rem;
-    border: none;
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-light);
 }
 
-.add-button:hover {
-    background-color: #15803d;
-}
-
-.add-button:disabled {
-    background-color: #9ca3af;
-}
-
-/* Table styles */
+/* Table styling */
 .table-container {
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
 }
 
-.data-table {
+table {
     width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #d1d5db;
-    min-width: 600px;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-.table-header {
-    padding: 0.75rem;
+th {
     text-align: left;
-    background-color: #f3f4f6;
-    border-bottom: 1px solid #d1d5db;
+    padding: var(--spacing-md);
+    background-color: var(--bg-color-offset);
+    color: var(--text-color);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.table-row {
-    border-bottom: 1px solid #d1d5db;
+th:first-child {
+    border-top-left-radius: var(--radius);
 }
 
-.table-cell {
-    padding: 0.75rem;
+th:last-child {
+    border-top-right-radius: var(--radius);
 }
 
-.view-button {
-    padding: 0.25rem 0.75rem;
-    background-color: #3b82f6;
-    color: white;
-    border-radius: 0.375rem;
-    border: none;
-    margin-right: 0.5rem;
+td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
 }
 
-.view-button:hover {
-    background-color: #2563eb;
+tr:last-child td:first-child {
+    border-bottom-left-radius: var(--radius);
 }
 
-.delete-button {
-    padding: 0.25rem 0.75rem;
-    background-color: #ef4444;
-    color: white;
-    border-radius: 0.375rem;
-    border: none;
+tr:last-child td:last-child {
+    border-bottom-right-radius: var(--radius);
 }
 
-.delete-button:hover {
-    background-color: #dc2626;
+tr:hover td {
+    background-color: var(--bg-color-offset);
 }
 
-/* Screenshot styles */
-.screenshot-button {
-    padding: 0.25rem 0.75rem;
-    background-color: #6366f1;
-    color: white;
-    border-radius: 0.375rem;
-    border: none;
-    margin-right: 0.5rem;
+.actions-cell {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
 }
 
-.screenshot-button:hover {
-    background-color: #4f46e5;
+.actions-cell button {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.875rem;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-md);
+    background-color: var(--bg-color-offset);
+    border-radius: var(--radius-lg);
+    color: var(--text-color-muted);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--modal-overlay-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-container {
+    background-color: var(--card-bg-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modal-appear 0.3s ease-out forwards;
 }
 
 .screenshot-modal {
-    max-width: 90%;
-    width: auto;
+    max-width: 800px;
 }
 
-.screenshot-container {
-    margin-top: 1rem;
-    overflow: auto;
-    max-height: 80vh;
+@keyframes modal-appear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-color);
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-color-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+}
+
+.modal-close:hover {
+    color: var(--text-color);
+    background-color: var(--bg-color-offset);
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+}
+
+.screenshot-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+    min-height: 300px;
+}
+
+.info-group {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    min-width: 120px;
+}
+
+.info-value {
+    flex: 1;
+    color: var(--text-color);
+}
+
+.response-section {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.response-section h4 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.response-content {
+    background-color: var(--code-bg-color);
+    color: var(--code-text-color);
+    padding: var(--spacing-md);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 300px;
 }
 
 .screenshot-image {
     max-width: 100%;
-    height: auto;
-    border: 1px solid #d1d5db;
-    border-radius: 0.25rem;
+    max-height: 70vh;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
 }
 
-.loading-message, .error-message {
-    padding: 2rem;
-    text-align: center;
-    color: #6b7280;
+/* Loading spinner */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: var(--spacing-lg) auto;
 }
 
-/* Empty message */
-.empty-message {
-    margin-top: 1.25rem;
-    color: #6b7280;
-}
-
-/* Modal styles */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-container {
-    background-color: white;
-    color: #111827;
-    padding: 1.25rem;
-    border-radius: 0.375rem;
-    width: 90%;
-    max-width: 500px;
-    border: 1px solid #d1d5db;
-    position: relative;
-}
-
-.modal-close {
-    position: absolute;
-    right: 1rem;
-    top: 0.5rem;
-    font-size: 1.5rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.modal-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.modal-text {
-    margin-bottom: 0.5rem;
-}
-
-.response-section {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #d1d5db;
-}
-
-.response-content {
-    padding: 0.625rem;
-    background-color: #f3f4f6;
-    color: #111827;
-    border-radius: 0.375rem;
-    overflow-x: auto;
-    max-height: 300px;
-    white-space: pre-wrap;
-    font-family: monospace;
-    font-size: 0.875rem;
-    border: 1px solid #d1d5db;
-}
-
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-    .form-container, .modal-container {
-        background-color: #1f2937;
-        border-color: #374151;
-        color: #f9fafb;
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
 
-    .input-field {
-        background-color: #1f2937;
-        border-color: #374151;
-        color: #f9fafb;
-    }
-
-    .table-header {
-        background-color: #374151;
-        border-color: #374151;
-    }
-
-    .table-row, .data-table {
-        border-color: #374151;
-    }
-
-    .empty-message {
-        color: #9ca3af;
-    }
-
-    .response-content {
-        background-color: #111827;
-        color: #f9fafb;
-        border-color: #374151;
-    }
-
-    .response-section {
-        border-color: #374151;
-    }
-
-    .screenshot-button {
-        background-color: #6d28d9;
-    }
-    
-    .screenshot-button:hover {
-        background-color: #5b21b6;
-    }
-    
-    .screenshot-image {
-        border-color: #374151;
-    }
-    
-    .loading-message, .error-message {
-        color: #9ca3af;
-    }
-}
-
-@media (max-width: 768px) {
-    .form-group {
-        flex-direction: column;
+    100% {
+        transform: rotate(360deg);
     }
 }
 </style>
