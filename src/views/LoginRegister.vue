@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { login, createUser } from '../api';
 
@@ -113,6 +113,33 @@ const registerError = ref('');
 const showRegisterPassword = ref(false);
 const acceptTerms = ref(false);
 
+// Function to validate token
+async function validateToken() {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    
+    try {
+        const response = await fetch('/api/protected', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        
+        return response.ok;
+    } catch (error) {
+        console.error('Token validation error:', error);
+        return false;
+    }
+}
+
+// Check for valid token on mount and redirect if valid
+onMounted(async () => {
+    const isTokenValid = await validateToken();
+    if (isTokenValid) {
+        router.push('/dashboard');
+    }
+});
+
 async function handleLogin() {
     if (isLoading.value) return;
 
@@ -120,6 +147,7 @@ async function handleLogin() {
     isLoading.value = true;
 
     try {
+        // The login function will now use the updated baseUrl with /api prefix
         const result = await login(loginForm.value.email, loginForm.value.password);
         if (result.access_token) {
             localStorage.setItem('token', result.access_token);
@@ -127,8 +155,7 @@ async function handleLogin() {
                 localStorage.setItem('user', JSON.stringify(result.user));
             }
             // Redirect to home page and force a reload to refresh the topbar
-            router.push('/');
-            window.location.reload();
+            window.location.href = "/dashboard"
         } else {
             loginError.value = 'Identifiants invalides';
         }
@@ -147,6 +174,7 @@ async function handleRegister() {
     isLoading.value = true;
 
     try {
+        // The createUser function will now use the updated baseUrl with /api prefix
         const result = await createUser(
             registerForm.value.email,
             registerForm.value.fullName,

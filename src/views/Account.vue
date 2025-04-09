@@ -96,6 +96,7 @@ async function fetchUserData() {
     }
 
     try {
+        // The accessProtectedRoute function will now use the updated baseUrl
         const data = await accessProtectedRoute(token);
         userData.value = data;
     } catch (err) {

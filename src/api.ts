@@ -1,4 +1,4 @@
-export const baseUrl = "http://localhost:8000";
+export const baseUrl = "http://localhost:8000/api";
 
 export async function createUser(email: string, fullName: string, password: string) {
     const response = await fetch(`${baseUrl}/users/`, {
@@ -8,10 +8,14 @@ export async function createUser(email: string, fullName: string, password: stri
     });
     return response.json();
 }
-export async function DoRequest(data: any) {
+
+export async function DoRequest(data: any, accessToken: string) {
     const response = await fetch(`${baseUrl}/v1`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        },
         body: JSON.stringify(data),
     });
     return [await response.json(), response.status];
@@ -78,10 +82,13 @@ export async function deleteAllowedHost(accessToken: string, id: number) {
     return response.ok;
 }
 
-export async function flaresolverApi(payload: object) {
+export async function flaresolverApi(payload: object, accessToken: string) {
     const response = await fetch(`${baseUrl}/v1`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        },
         body: JSON.stringify(payload),
     });
     return response.json();

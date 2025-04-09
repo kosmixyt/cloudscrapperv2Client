@@ -368,7 +368,7 @@ export default defineComponent({
                 const accessToken = localStorage.getItem('token');
                 if (!accessToken) return;
 
-                // Utilise l'URL de base déjà configurée dans l'application
+                // Utilise l'URL correcte pour les screenshots
                 const response = await fetch(`${baseUrl}/screenshots/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`

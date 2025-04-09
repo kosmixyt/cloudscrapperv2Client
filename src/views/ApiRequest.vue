@@ -1023,7 +1023,7 @@ export default defineComponent({
     margin-bottom: var(--spacing-md);
     padding: var(--spacing-md);
     background-color: var(--bg-color);
-    border-radius: var(--radius);
+    border-radius: var (--radius);
     border: 1px solid var(--border-color);
     max-height: 300px;
     /* Limit maximum height */
@@ -1053,7 +1053,7 @@ export default defineComponent({
 
 .task-status-badge {
     padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-lg);
+    border-radius: var (--radius-lg);
     font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
